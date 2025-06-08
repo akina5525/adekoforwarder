@@ -4,8 +4,8 @@
 // @version      1.0.0
 // @description  Adds a button to forward projects to Vertigram API
 // @match        https://adekosiparis.vanucci.com/*
-// @updateURL    https://raw.githubusercontent.com/akina5525/vm-projects-forwarder/main/forwarder.user.js
-// @downloadURL  https://raw.githubusercontent.com/akina5525/vm-projects-forwarder/main/forwarder.user.js
+// @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
+// @downloadURL  https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @grant        none
 // ==/UserScript==
 
