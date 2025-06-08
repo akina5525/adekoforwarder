@@ -16,16 +16,13 @@
     const btn = document.createElement('button');
     btn.textContent = 'Forward Projects';
     Object.assign(btn.style, {
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
         padding: '10px 15px',
-        backgroundColor: '#007bff',
+        backgroundColor: 'orange',
         color: '#fff',
         border: 'none',
         borderRadius: '5px',
         cursor: 'pointer',
-        zIndex: 9999
+        marginRight: '10px'
     });
 
     // Click handler
@@ -52,7 +49,14 @@
         }
     });
 
-    // Insert into page
-    document.body.appendChild(btn);
+    // Insert before "Yeni Proje Ekle" button if found
+    const reference = Array.from(document.querySelectorAll('button')).find(
+        el => el.textContent.trim() === 'Yeni Proje Ekle'
+    );
+    if (reference && reference.parentNode) {
+        reference.parentNode.insertBefore(btn, reference);
+    } else {
+        document.body.appendChild(btn);
+    }
 })();
 
