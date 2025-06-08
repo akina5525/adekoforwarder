@@ -17,7 +17,7 @@ jobs:
       - name: Increment version
         run: |
           file="forwarder.user.js"
-          version=$(grep -oP '(?<=@version\s+)[0-9]+\.[0-9]+\.[0-9]+' "$file")
+          version=$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+' "$file" | head -n1)
           IFS='.' read -r major minor patch <<< "$version"
           patch=$((patch+1))
           new_version="$major.$minor.$patch"
@@ -30,6 +30,6 @@ jobs:
             echo "No changes to commit"
             exit 0
           fi
-          version=$(grep -oP '(?<=@version\s+)[0-9]+\.[0-9]+\.[0-9]+' forwarder.user.js)
+          version=$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+' forwarder.user.js | head -n1)
           git commit -m "ci: bump version to $version"
           git push
