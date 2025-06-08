@@ -1,0 +1,35 @@
+name: Bump userscript version
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  bump:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Increment version
+        run: |
+          file="forwarder.user.js"
+          version=$(grep -oP '(?<=@version\s+)[0-9]+\.[0-9]+\.[0-9]+' "$file")
+          IFS='.' read -r major minor patch <<< "$version"
+          patch=$((patch+1))
+          new_version="$major.$minor.$patch"
+          sed -i -E "s/(@version\s+)$version/\1$new_version/" "$file"
+          echo "Bumped to $new_version"
+      - name: Commit and push
+        run: |
+          git add forwarder.user.js
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          version=$(grep -oP '(?<=@version\s+)[0-9]+\.[0-9]+\.[0-9]+' forwarder.user.js)
+          git commit -m "ci: bump version to $version"
+          git push
