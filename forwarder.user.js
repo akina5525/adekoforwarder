@@ -56,7 +56,7 @@
     if (reference && reference.parentNode) {
         reference.parentNode.insertBefore(btn, reference);
     } else {
-        document.body.appendChild(btn);
+        //document.body.appendChild(btn);
     }
 })();
 
