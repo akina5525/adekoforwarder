@@ -6,6 +6,11 @@ on:
 
 jobs:
   bump:
+  # Grant write permissions to the token
+    permissions:
+      contents: write  # 👈 Key fix
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     if: ${{ github.actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
     steps:
