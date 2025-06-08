@@ -7,7 +7,7 @@ This repository hosts a Violent Monkey userscript that forwards project data fro
 1. Install [Violent Monkey](https://violentmonkey.github.io/).
 2. In the dashboard choose **"+" → "From URL"** and paste the raw script URL:
    ```
-   https://raw.githubusercontent.com/username/vm-projects-forwarder/main/forwarder.user.js
+   https://raw.githubusercontent.com/akina5525/vm-projects-forwarder/main/forwarder.user.js
    ```
 3. Violent Monkey will automatically check this URL for updates when the `@version` changes.
 
