@@ -23,6 +23,11 @@
         document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAgeSeconds}`;
     }
 
+    // Deletes a cookie
+    function deleteCookie(name) {
+        document.cookie = `${name}=; path=/; max-age=0`;
+    }
+
     // Shows a small top bar with the given message
     function showBar(msg) {
         let bar = document.getElementById('forwarder-status-bar');
@@ -83,7 +88,16 @@
         }
     }
 
+    function attachLogoutHandler() {
+        const logoutBtn = Array.from(document.querySelectorAll('a, button'))
+            .find(el => el.textContent.trim() === 'Çıkış Yap');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => deleteCookie('last_forward'));
+        }
+    }
+
     // Run on page load
     maybeForward();
+    attachLogoutHandler();
 })();
 
