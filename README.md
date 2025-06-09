@@ -11,7 +11,7 @@ This repository hosts a Violent Monkey userscript that forwards project data fro
    ```
 3. Violent Monkey will automatically check this URL for updates when the `@version` changes.
 
-The script adds a button to the Adekosiparis site that fetches projects and sends them to Vertigram.
+The script automatically forwards projects to Vertigram whenever you visit the Adekosiparis site. It stores a timestamp in a cookie so forwarding happens at most once every 30 minutes. A small status bar appears at the top of the page while the request is in progress.
 
 ## Automatic version bump
 
