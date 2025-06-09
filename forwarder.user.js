@@ -13,7 +13,7 @@
     'use strict';
 
     // Exit early on the login page
-    if (location.href.toLowerCase().includes('account/login')) {
+    if (location.href.toLowerCase().includes('login')) {
         return;
     }
 
