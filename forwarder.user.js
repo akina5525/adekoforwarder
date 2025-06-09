@@ -12,6 +12,11 @@
 (function() {
     'use strict';
 
+    // Exit early on the login page
+    if (location.href.toLowerCase().includes('account/login')) {
+        return;
+    }
+
     // Utility to get a cookie by name
     function getCookie(name) {
         const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
