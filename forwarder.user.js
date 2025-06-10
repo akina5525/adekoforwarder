@@ -67,7 +67,7 @@
     async function forward() {
         showBar('Forwarding projects…');
         try {
-            const res1 = await fetch('https://adekosiparis.vanucci.com/Project/GetProjects?page=1&limit=50');
+            const res1 = await fetch('https://adekosiparis.vanucci.com/Project/GetProjects?page=1&limit=50&customerTitle=&sortBy=crmOrderNo&direction=desc&status=S');
             if (!res1.ok) throw new Error(`Fetch projects failed: ${res1.status}`);
             const data = await res1.json();
             const res2 = await fetch('https://portal.vertigram.com/api/projects', {
