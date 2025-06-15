@@ -70,7 +70,7 @@
             const res1 = await fetch('https://adekosiparis.vanucci.com/Project/GetProjects?page=1&limit=50&customerTitle=&sortBy=crmOrderNo&direction=desc&status=S');
             if (!res1.ok) throw new Error(`Fetch projects failed: ${res1.status}`);
             const data = await res1.json();
-            const res2 = await fetch('https://montaj.vertigram.com/api/projects', {
+            const res2 = await fetch('https://montaj.sistemart.com/api/projects', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
