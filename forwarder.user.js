@@ -134,11 +134,43 @@
         }, 300);
     }
 
+    // Validate the CRM Order No field before saving invoices on Parasut
+    function addOrderNoValidator() {
+        if (!location.hostname.includes('uygulama.parasut.com')) {
+            return;
+        }
+
+        let attempts = 0;
+        const maxAttempts = 20;
+        const interval = setInterval(() => {
+            const saveBtn = document.querySelector('[data-tid="save"]');
+            const spanNo = Array.from(document.querySelectorAll('span.prepend'))
+                .find(sp => sp.textContent.trim() === 'NO');
+            const input = spanNo && spanNo.parentElement.querySelector('input');
+
+            attempts++;
+
+            if (saveBtn && input) {
+                saveBtn.addEventListener('click', evt => {
+                    if (!input.value.trim()) {
+                        evt.stopImmediatePropagation();
+                        evt.preventDefault();
+                        alert('CRM Order No has to be entered');
+                    }
+                }, true);
+                clearInterval(interval);
+            } else if (attempts >= maxAttempts) {
+                clearInterval(interval);
+            }
+        }, 300);
+    }
+
     // Run on page load
     if (location.hostname.includes('adekosiparis.vanucci.com')) {
         maybeForward();
         attachLogoutHandler();
     }
     window.addEventListener('load', clickParasutOrderInfo);
+    window.addEventListener('load', addOrderNoValidator);
 })();
 
