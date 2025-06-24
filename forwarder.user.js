@@ -103,26 +103,39 @@
     }
 
     // Automatically expand the order-info section on Parasut invoice pages
+    function findOrderInfoButton(doc) {
+        const addButton = Array.from(doc.querySelectorAll('button, a, [role="button"]'))
+            .find(el => el.textContent.trim() === 'SİPARİŞ BİLGİSİ EKLE');
+        if (addButton) {
+            return addButton;
+        }
+
+        const orderDiv = doc.querySelector("div[class*='order-info']");
+        if (orderDiv) {
+            const clickable = orderDiv.querySelector('a, button, [role="button"], input[type="button"], input[type="submit"]');
+            return clickable || orderDiv;
+        }
+
+        for (const frame of doc.querySelectorAll('iframe')) {
+            try {
+                const found = findOrderInfoButton(frame.contentDocument);
+                if (found) return found;
+            } catch (e) {
+                // Ignore cross-origin frames
+            }
+        }
+        return null;
+    }
+
     function clickParasutOrderInfo() {
         if (!location.hostname.includes('uygulama.parasut.com')) {
             return;
         }
 
         const interval = setInterval(() => {
-            // Look for the localized button text first
-            const addButton = Array.from(document.querySelectorAll('button, a, [role="button"]'))
-                .find(el => el.textContent.trim() === 'SİPARİŞ BİLGİSİ EKLE');
-
-            if (addButton) {
-                addButton.click();
-                clearInterval(interval);
-                return;
-            }
-
-            const orderDiv = document.querySelector("div[class*='order-info']");
-            if (orderDiv) {
-                const clickable = orderDiv.querySelector('a, button, [role="button"], input[type="button"], input[type="submit"]');
-                (clickable || orderDiv).click();
+            const button = findOrderInfoButton(document);
+            if (button) {
+                button.click();
                 clearInterval(interval);
             }
         }, 300);
