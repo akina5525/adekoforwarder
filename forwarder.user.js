@@ -124,8 +124,10 @@
     }
 
     // Run on page load
-    maybeForward();
-    attachLogoutHandler();
+    if (location.hostname.includes('adekosiparis.vanucci.com')) {
+        maybeForward();
+        attachLogoutHandler();
+    }
     window.addEventListener('load', clickParasutOrderInfo);
 })();
 
