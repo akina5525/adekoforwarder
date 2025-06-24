@@ -4,6 +4,7 @@
 // @version      1.0.11
 // @description  Automatically forwards projects to Vertigram API every 30 minutes
 // @match        https://adekosiparis.vanucci.com/*
+// @match        https://uygulama.parasut.com/*/satislar/yeni/fatura
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @downloadURL  https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @grant        none
@@ -101,8 +102,24 @@
         }
     }
 
+    // Automatically expand the order-info section on Parasut invoice pages
+    function clickParasutOrderInfo() {
+        if (!location.hostname.includes('uygulama.parasut.com')) {
+            return;
+        }
+        setTimeout(() => {
+            const orderDiv = document.querySelector("div[class*='order-info']");
+            if (!orderDiv) {
+                return;
+            }
+            const clickable = orderDiv.querySelector('a, button, [role="button"], input[type="button"], input[type="submit"]');
+            (clickable || orderDiv).click();
+        }, 500);
+    }
+
     // Run on page load
     maybeForward();
     attachLogoutHandler();
+    clickParasutOrderInfo();
 })();
 
