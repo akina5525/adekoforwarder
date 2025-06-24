@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Adekosiparis → Vertigram Forwarder
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.0.16
+// @version      1.0.17
 // @description  Automatically forwards projects to Vertigram API every 30 minutes
 // @match        https://adekosiparis.vanucci.com/*
 // @match        https://uygulama.parasut.com/*/satislar/yeni/fatura
@@ -108,14 +108,10 @@
             return;
         }
 
-        let attempts = 0;
-        const maxAttempts = 20;
         const interval = setInterval(() => {
             // Look for the localized button text first
             const addButton = Array.from(document.querySelectorAll('button, a, [role="button"]'))
                 .find(el => el.textContent.trim() === 'SİPARİŞ BİLGİSİ EKLE');
-
-            attempts++;
 
             if (addButton) {
                 addButton.click();
@@ -127,8 +123,6 @@
             if (orderDiv) {
                 const clickable = orderDiv.querySelector('a, button, [role="button"], input[type="button"], input[type="submit"]');
                 (clickable || orderDiv).click();
-                clearInterval(interval);
-            } else if (attempts >= maxAttempts) {
                 clearInterval(interval);
             }
         }, 300);
