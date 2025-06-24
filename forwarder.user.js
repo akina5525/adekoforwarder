@@ -107,19 +107,25 @@
         if (!location.hostname.includes('uygulama.parasut.com')) {
             return;
         }
-        setTimeout(() => {
+
+        let attempts = 0;
+        const maxAttempts = 10;
+        const interval = setInterval(() => {
             const orderDiv = document.querySelector("div[class*='order-info']");
-            if (!orderDiv) {
-                return;
+            attempts++;
+            if (orderDiv) {
+                const clickable = orderDiv.querySelector('a, button, [role="button"], input[type="button"], input[type="submit"]');
+                (clickable || orderDiv).click();
+                clearInterval(interval);
+            } else if (attempts >= maxAttempts) {
+                clearInterval(interval);
             }
-            const clickable = orderDiv.querySelector('a, button, [role="button"], input[type="button"], input[type="submit"]');
-            (clickable || orderDiv).click();
-        }, 500);
+        }, 300);
     }
 
     // Run on page load
     maybeForward();
     attachLogoutHandler();
-    clickParasutOrderInfo();
+    window.addEventListener('load', clickParasutOrderInfo);
 })();
 
