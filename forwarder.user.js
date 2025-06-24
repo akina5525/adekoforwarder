@@ -109,10 +109,21 @@
         }
 
         let attempts = 0;
-        const maxAttempts = 10;
+        const maxAttempts = 20;
         const interval = setInterval(() => {
-            const orderDiv = document.querySelector("div[class*='order-info']");
+            // Look for the localized button text first
+            const addButton = Array.from(document.querySelectorAll('button, a, [role="button"]'))
+                .find(el => el.textContent.trim() === 'SİPARİŞ BİLGİSİ EKLE');
+
             attempts++;
+
+            if (addButton) {
+                addButton.click();
+                clearInterval(interval);
+                return;
+            }
+
+            const orderDiv = document.querySelector("div[class*='order-info']");
             if (orderDiv) {
                 const clickable = orderDiv.querySelector('a, button, [role="button"], input[type="button"], input[type="submit"]');
                 (clickable || orderDiv).click();
