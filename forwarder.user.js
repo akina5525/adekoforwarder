@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Adekosiparis → Vertigram Forwarder + Parasut helpers
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.0.37
+// @version      1.0.38
 // @description  • Forwards Adekosiparis projects to Vertigram every 30 min  • Adds CRM helpers inside uygulama.parasut.com
 // @match        https://adekosiparis.vanucci.com/*
 // @match        https://uygulama.parasut.com/*
