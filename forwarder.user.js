@@ -4,7 +4,7 @@
 // @version      1.0.21
 // @description  Automatically forwards projects to Vertigram API every 30 minutes
 // @match        https://adekosiparis.vanucci.com/*
-// @match        https://uygulama.parasut.com/*/satislar5/yeni/fatura
+// @match        https://uygulama.parasut.com/*/satislar/yeni/fatura
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @downloadURL  https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @grant        none
