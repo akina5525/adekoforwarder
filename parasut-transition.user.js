@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parasut Page Load Alert
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.0.2
+// @version      1.0.3
 // @description  Alerts whenever the Parasut SPA finishes loading a new page
 // @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/parasut-transition.user.js
@@ -13,28 +13,8 @@
 (() => {
   'use strict';
 
-  function showAlert(msg, ms = 3000) {
-    let popup = document.getElementById('parasut-alert-popup');
-    if (!popup) {
-      popup = Object.assign(document.createElement('div'), {
-        id: 'parasut-alert-popup',
-      });
-      Object.assign(popup.style, {
-        position: 'fixed',
-        bottom: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        padding: '12px 24px',
-        background: '#333',
-        color: '#fff',
-        borderRadius: '4px',
-        zIndex: 9999,
-      });
-      document.body.appendChild(popup);
-    }
-    popup.textContent = msg;
-    clearTimeout(popup.hideTimer);
-    popup.hideTimer = setTimeout(() => popup.remove(), ms);
+  function showAlert(msg) {
+    console.log(msg);
   }
 
   // show alert after DOM settles
