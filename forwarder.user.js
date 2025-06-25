@@ -213,6 +213,10 @@
     if (isParasut) {
         let lastHref = location.href;
         runParasutEnhancements();
+        window.addEventListener('trinityDidTransition', () => {
+            logParasut('trinityDidTransition event received');
+            runParasutEnhancements();
+        });
         setInterval(() => {
             if (location.href !== lastHref) {
                 lastHref = location.href;
