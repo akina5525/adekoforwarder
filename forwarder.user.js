@@ -4,7 +4,7 @@
 // @version      1.0.40
 // @description  Forwards Adekosiparis projects to Vertigram every 30 min
 // @match        https://adekosiparis.vanucci.com/*
-// @match        https://uygulama.parasut.com/*/satislar/yeni/fatura*
+// @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @downloadURL  https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @run-at       document-start
