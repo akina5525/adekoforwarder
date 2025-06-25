@@ -165,7 +165,7 @@
           }),
         ]);
 
-        input.style.background = '#ffe5e5';
+        input.style.backgroundColor = '#ffe5e5';
         saveBtn.addEventListener(
           'click',
           evt => {
