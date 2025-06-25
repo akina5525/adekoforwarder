@@ -12,20 +12,27 @@
   'use strict';
 
   function showAlert(msg, ms = 3000) {
-    const popup = Object.assign(document.createElement('div'), { textContent: msg });
-    Object.assign(popup.style, {
-      position: 'fixed',
-      bottom: '20px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      padding: '12px 24px',
-      background: '#333',
-      color: '#fff',
-      borderRadius: '4px',
-      zIndex: 9999,
-    });
-    document.body.appendChild(popup);
-    setTimeout(() => popup.remove(), ms);
+    let popup = document.getElementById('parasut-alert-popup');
+    if (!popup) {
+      popup = Object.assign(document.createElement('div'), {
+        id: 'parasut-alert-popup',
+      });
+      Object.assign(popup.style, {
+        position: 'fixed',
+        bottom: '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        padding: '12px 24px',
+        background: '#333',
+        color: '#fff',
+        borderRadius: '4px',
+        zIndex: 9999,
+      });
+      document.body.appendChild(popup);
+    }
+    popup.textContent = msg;
+    clearTimeout(popup.hideTimer);
+    popup.hideTimer = setTimeout(() => popup.remove(), ms);
   }
 
   // show alert after DOM settles
