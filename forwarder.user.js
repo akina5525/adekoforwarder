@@ -201,7 +201,7 @@ function setupInvoicePage() {
 }
 
 function checkRoute() {
-    if (/\/satislar5\/yeni\/fatura$/.test(location.pathname) &&
+    if (/\/satislar\/yeni\/fatura$/.test(location.pathname) &&
         lastInvoiceUrl !== location.href) {
         setupInvoicePage();
     }
