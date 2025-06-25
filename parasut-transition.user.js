@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Parasut Trinity Transition Popup
+// @name         Parasut Page Load Alert
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.0.0
-// @description  Shows a popup whenever the SPA triggers trinityDidTransition
+// @version      1.0.1
+// @description  Alerts whenever the Parasut SPA finishes loading a new page
 // @match        https://uygulama.parasut.com/*
 // @grant        none
 // @run-at       document-start
@@ -11,7 +11,7 @@
 (() => {
   'use strict';
 
-  function showPopup(msg, ms = 3000) {
+  function showAlert(msg, ms = 3000) {
     const popup = Object.assign(document.createElement('div'), { textContent: msg });
     Object.assign(popup.style, {
       position: 'fixed',
@@ -28,23 +28,30 @@
     setTimeout(() => popup.remove(), ms);
   }
 
-  function onTransition() {
-    showPopup('trinityDidTransition event fired');
-  }
+  // show alert after DOM settles
+  let lastUrl = location.href;
+  let timer;
+  const observer = new MutationObserver(() => {
+    if (location.href !== lastUrl) {
+      lastUrl = location.href;
+    }
+    clearTimeout(timer);
+    timer = setTimeout(() => showAlert(`Page loaded: ${document.title}`), 500);
+  });
 
-  function init() {
-    document.addEventListener('trinityDidTransition', onTransition);
+  function start() {
+    observer.observe(document.body, { childList: true, subtree: true });
+    showAlert(`Page loaded: ${document.title}`);
   }
 
   if (document.body) {
-    init();
+    start();
   } else {
     new MutationObserver((_, obs) => {
       if (document.body) {
         obs.disconnect();
-        init();
+        start();
       }
     }).observe(document.documentElement, { childList: true, subtree: true });
   }
 })();
-
