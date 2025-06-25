@@ -4,7 +4,6 @@
 // @version      1.0.41
 // @description  Forwards Adekosiparis projects to Vertigram every 30 min
 // @match        https://adekosiparis.vanucci.com/*
-// @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @downloadURL  https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @run-at       document-start
@@ -19,8 +18,7 @@
    *───────────────────────────────────────────────────*/
   if (/login/i.test(location.href)) return;
 
-  const isAdekos  = location.hostname.includes('adekosiparis.vanucci.com');
-  const isParasut = location.hostname === 'uygulama.parasut.com';
+  const isAdekos = location.hostname.includes('adekosiparis.vanucci.com');
 
   /*───────────────────────────────────────────────────*
    *  COOKIE HELPERS                                   *
@@ -101,47 +99,11 @@
   }
 
   /*───────────────────────────────────────────────────*
-   *  PARASUT ORDER INFO HELPER                        *
-   *───────────────────────────────────────────────────*/
-  function clickSiparisBilgisi() {
-    const TEXT = 'SİPARİŞ BİLGİSİ EKLE';
-    let tries = 0;
-    const timer = setInterval(() => {
-      tries++;
-      const btn = Array.from(document.querySelectorAll('button, a')).find(e =>
-        e.textContent.trim().toUpperCase().includes(TEXT)
-      );
-      if (btn) {
-        btn.click();
-        clearInterval(timer);
-      }
-      if (tries > 50) clearInterval(timer); // ~15 s
-    }, 300);
-  }
-
-  function monitorParasut() {
-    let lastURL = '';
-    const check = () => {
-      if (location.href !== lastURL) {
-        lastURL = location.href;
-        if (/\/satislar\/yeni\/fatura/.test(location.pathname)) {
-          clickSiparisBilgisi();
-        }
-      }
-    };
-    setInterval(check, 500);
-    check();
-  }
-
-
-  /*───────────────────────────────────────────────────*
    *  INITIALISATION PER SITE                          *
    *───────────────────────────────────────────────────*/
   if (isAdekos) {
     maybeForward();                           // immediate
     setInterval(maybeForward, 5 * 60 * 1000); // check every 5 min
     attachLogoutHandler();
-  } else if (isParasut) {
-    monitorParasut();
   }
 })();
