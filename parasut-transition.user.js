@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parasut Page Load Alert
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.1.0
+// @version      1.2.0
 // @description  Alerts whenever the Parasut SPA finishes loading a new page
 // @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/parasut-transition.user.js
@@ -23,10 +23,22 @@
       document.title.trim() ===
       'Paraşüt ▸ Satış Faturaları ▸ Satış Faturası ▸ Yeni'
     ) {
-      const input = Array.from(document.querySelectorAll('input')).find(el => {
-        const txt = (el.placeholder || el.value || '').trim().toUpperCase();
-        return txt === 'FATURA İSMİ';
-      });
+      const label = Array.from(document.querySelectorAll('label')).find(el =>
+        el.textContent.trim().toUpperCase() === 'FATURA İSMİ'
+      );
+      let input = null;
+      if (label) {
+        if (label.htmlFor) {
+          input = document.getElementById(label.htmlFor);
+        }
+        if (!input) {
+          if (label.nextElementSibling && label.nextElementSibling.tagName === 'INPUT') {
+            input = label.nextElementSibling;
+          } else {
+            input = label.parentElement.querySelector('input');
+          }
+        }
+      }
       if (input) {
         input.click();
         input.style.backgroundColor = 'red';
