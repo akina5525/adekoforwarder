@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parasut Page Load Alert
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.4.0
+// @version      1.5.0
 // @description  Alerts whenever the Parasut SPA finishes loading a new page
 // @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/parasut-transition.user.js
@@ -45,6 +45,28 @@
               if (btn) btn.click();
             }
           });
+        }
+
+        const save = document.querySelector('button[data-tid="save"]');
+        if (save && !save.dataset.forwarderAttached) {
+          save.dataset.forwarderAttached = 'true';
+          save.addEventListener(
+            'click',
+            ev => {
+              if (/MUTFAK/i.test(input.value)) {
+                const span = Array.from(document.querySelectorAll('span.prepend')).find(
+                  s => s.textContent.trim() === 'NO'
+                );
+                const orderInput = span?.parentElement.querySelector('input[type="text"]');
+                if (!orderInput || !orderInput.value.trim()) {
+                  ev.stopImmediatePropagation();
+                  ev.preventDefault();
+                  alert('CRM Sipariş NO boş olamaz');
+                }
+              }
+            },
+            true
+          );
         }
       }
     }
