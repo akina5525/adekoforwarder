@@ -181,12 +181,38 @@
         log('Order-No validator setup timed out');
       }
     }
+    /* ───── watch “FATURA İSMİ” and warn if it changes ───── */
+async function watchInvoiceNameChange() {
+  try {
+    // 1.  Find the fieldset by its data-tns attribute, then the <input>
+    const input = await waitFor(() =>
+      document
+        .querySelector('fieldset[data-tns="invoice-header"] input[type="text"]')
+    );
+
+    let original = input.value;          // remember the value loaded from DB
+    if (original === undefined) original = '';   // safety
+
+    // 2.  Listen for edits
+    input.addEventListener('input', () => {
+      if (input.value !== original) {
+        alert('⚠️  “FATURA İSMİ” alanı değiştirildi!');
+        original = input.value; // optional: update so the alert fires only once
+      }
+    });
+
+  } catch (e) {
+    console.debug('[Parasut] watchInvoiceNameChange →', e);
+  }
+}
+
 
     /* Run Parasut enhancements on invoice pages */
     function runParasutEnhancements() {
       if (/\/satislar\/(?:yeni|\d+)\/fatura/.test(location.pathname)) {
         clickOrderInfo();
         installOrderNoValidator();
+        watchInvoiceNameChange();
       }
     }
 
