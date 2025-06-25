@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parasut Page Load Alert
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.0.1
+// @version      1.0.2
 // @description  Alerts whenever the Parasut SPA finishes loading a new page
 // @match        https://uygulama.parasut.com/*
 // @grant        none
