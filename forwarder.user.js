@@ -18,6 +18,13 @@
         return;
     }
 
+    const isParasut = location.hostname.includes('uygulama.parasut.com');
+    function logParasut(...args) {
+        if (isParasut) {
+            console.debug('[Parasut]', ...args);
+        }
+    }
+
     // Utility to get a cookie by name
     function getCookie(name) {
         const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
@@ -104,24 +111,28 @@
 
     // Automatically expand the order-info section on Parasut invoice pages
     function findOrderInfoButton(doc) {
+        logParasut('Searching for order info button');
         const addButton = Array.from(doc.querySelectorAll('button, a, [role="button"]'))
             .find(el => el.textContent.trim() === 'SİPARİŞ BİLGİSİ EKLE');
         if (addButton) {
+            logParasut('Found localized order info button');
             return addButton;
         }
 
         const orderDiv = doc.querySelector("div[class*='order-info']");
         if (orderDiv) {
+            logParasut('Found order info container');
             const clickable = orderDiv.querySelector('a, button, [role="button"], input[type="button"], input[type="submit"]');
             return clickable || orderDiv;
         }
 
         for (const frame of doc.querySelectorAll('iframe')) {
             try {
+                logParasut('Searching inside iframe');
                 const found = findOrderInfoButton(frame.contentDocument);
                 if (found) return found;
             } catch (e) {
-                // Ignore cross-origin frames
+                logParasut('Skipping cross-origin iframe');
             }
         }
         return null;
@@ -131,10 +142,14 @@
         if (!location.hostname.includes('uygulama.parasut.com')) {
             return;
         }
-
+        logParasut('Waiting for order info button');
+        let attempts = 0;
         const interval = setInterval(() => {
+            attempts++;
+            logParasut(`Attempt ${attempts} to find order info button`);
             const button = findOrderInfoButton(document);
             if (button) {
+                logParasut('Order info button found, clicking');
                 button.click();
                 clearInterval(interval);
             }
@@ -147,19 +162,23 @@
             return;
         }
 
+        logParasut('Setting up order number validator');
         let attempts = 0;
         const maxAttempts = 20;
         const interval = setInterval(() => {
+            attempts++;
+            logParasut(`Validator check attempt ${attempts}`);
             const saveBtn = document.querySelector('[data-tid="save"]');
             const spanNo = Array.from(document.querySelectorAll('span.prepend'))
                 .find(sp => sp.textContent.trim() === 'NO');
             const input = spanNo && spanNo.parentElement.querySelector('input');
 
-            attempts++;
-
             if (saveBtn && input) {
+                logParasut('Validator attached');
                 saveBtn.addEventListener('click', evt => {
+                    logParasut(`Save clicked with order no: "${input.value.trim()}"`);
                     if (!input.value.trim()) {
+                        logParasut('Order no missing, preventing save');
                         evt.stopImmediatePropagation();
                         evt.preventDefault();
                         alert('CRM Order No has to be entered');
@@ -167,6 +186,7 @@
                 }, true);
                 clearInterval(interval);
             } else if (attempts >= maxAttempts) {
+                logParasut('Giving up on attaching validator');
                 clearInterval(interval);
             }
         }, 300);
