@@ -192,6 +192,26 @@
         }, 300);
     }
 
+    // Alert with the content of the first text input when it changes
+    function alertFirstInputChange() {
+        if (!isParasutInvoicePage()) {
+            return;
+        }
+
+        let attempts = 0;
+        const maxAttempts = 20;
+        const interval = setInterval(() => {
+            attempts++;
+            const input = document.querySelector('input[type="text"]');
+            if (input) {
+                input.addEventListener('change', () => alert(input.value));
+                clearInterval(interval);
+            } else if (attempts >= maxAttempts) {
+                clearInterval(interval);
+            }
+        }, 300);
+    }
+
     function isParasutInvoicePage() {
         return location.hostname.includes('uygulama.parasut.com') &&
                location.pathname.includes('/satislar/yeni/fatura');
@@ -201,6 +221,7 @@
         if (isParasutInvoicePage()) {
             clickParasutOrderInfo();
             addOrderNoValidator();
+            alertFirstInputChange();
         }
     }
 
