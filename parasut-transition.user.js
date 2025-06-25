@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parasut Page Load Alert
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.2.0
+// @version      1.3.0
 // @description  Alerts whenever the Parasut SPA finishes loading a new page
 // @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/parasut-transition.user.js
@@ -23,21 +23,14 @@
       document.title.trim() ===
       'Paraşüt ▸ Satış Faturaları ▸ Satış Faturası ▸ Yeni'
     ) {
-      const label = Array.from(document.querySelectorAll('label')).find(el =>
+      const section = document.querySelector('fieldset[data-tns="invoice-header"]');
+      if (!section) return;
+      const label = Array.from(section.querySelectorAll('label')).find(el =>
         el.textContent.trim().toUpperCase() === 'FATURA İSMİ'
       );
-      let input = null;
-      if (label) {
-        if (label.htmlFor) {
-          input = document.getElementById(label.htmlFor);
-        }
-        if (!input) {
-          if (label.nextElementSibling && label.nextElementSibling.tagName === 'INPUT') {
-            input = label.nextElementSibling;
-          } else {
-            input = label.parentElement.querySelector('input');
-          }
-        }
+      let input = label?.parentElement.querySelector('input[type="text"]');
+      if (!input) {
+        input = section.querySelector('input[type="text"]');
       }
       if (input) {
         input.click();
