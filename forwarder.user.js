@@ -4,6 +4,7 @@
 // @version      1.0.42
 // @description  Forwards Adekosiparis projects to Vertigram every 30 min
 // @match        https://adekosiparis.vanucci.com/*
+// @match        https://uygulama.parasut.com/*/satislar/yeni/fatura*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @downloadURL  https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @run-at       document-start
@@ -19,6 +20,7 @@
   if (/login/i.test(location.href)) return;
 
   const isAdekos = location.hostname.includes('adekosiparis.vanucci.com');
+  const isParasut = location.hostname === 'uygulama.parasut.com';
 
   /*───────────────────────────────────────────────────*
    *  COOKIE HELPERS                                   *
@@ -99,11 +101,49 @@
   }
 
   /*───────────────────────────────────────────────────*
+   *  PARASUT ORDER INFO HELPER                        *
+   *───────────────────────────────────────────────────*/
+  function monitorParasut() {
+    const TEXT = 'SİPARİŞ BİLGİSİ EKLE';
+    let lastPath = location.pathname;
+    let clicked = false;
+
+    const findAndClick = () => {
+      if (clicked) return;
+      const btn = Array.from(document.querySelectorAll('button, a')).find(e =>
+        e.textContent.trim().toUpperCase().includes(TEXT)
+      );
+      if (btn) {
+        btn.click();
+        clicked = true;
+      }
+    };
+
+    const observer = new MutationObserver(() => {
+      if (location.pathname !== lastPath) {
+        lastPath = location.pathname;
+        clicked = false;
+      }
+      if (/\/satislar\/yeni\/fatura/.test(location.pathname)) {
+        findAndClick();
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    if (/\/satislar\/yeni\/fatura/.test(location.pathname)) {
+      findAndClick();
+    }
+  }
+
+  /*───────────────────────────────────────────────────*
    *  INITIALISATION PER SITE                          *
    *───────────────────────────────────────────────────*/
   if (isAdekos) {
     maybeForward();                           // immediate
     setInterval(maybeForward, 5 * 60 * 1000); // check every 5 min
     attachLogoutHandler();
+  } else if (isParasut) {
+    monitorParasut();
   }
 })();
