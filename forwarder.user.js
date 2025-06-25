@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Adekosiparis → Vertigram Forwarder
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.0.25
+// @version      1.0.26
 // @description  Automatically forwards projects to Vertigram API every 30 minutes
 // @match        https://adekosiparis.vanucci.com/*
 // @match        https://uygulama.parasut.com/*/satislar/yeni/fatura
