@@ -4,7 +4,7 @@
 // @version      1.0.21
 // @description  Automatically forwards projects to Vertigram API every 30 minutes
 // @match        https://adekosiparis.vanucci.com/*
-// @match        https://uygulama.parasut.com/*/satislar5/yeni/fatura
+// @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @downloadURL  https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @grant        none
@@ -192,12 +192,36 @@
         }, 300);
     }
 
-    // Run on page load
-    if (location.hostname.includes('adekosiparis.vanucci.com')) {
-        maybeForward();
-        attachLogoutHandler();
+let lastInvoiceUrl = null;
+
+function setupInvoicePage() {
+    lastInvoiceUrl = location.href;
+    clickParasutOrderInfo();
+    addOrderNoValidator();
+}
+
+function checkRoute() {
+    if (/\/satislar5\/yeni\/fatura$/.test(location.pathname) &&
+        lastInvoiceUrl !== location.href) {
+        setupInvoicePage();
     }
-    window.addEventListener('load', clickParasutOrderInfo);
-    window.addEventListener('load', addOrderNoValidator);
+}
+
+function watchNavigation() {
+    const origPush = history.pushState;
+    history.pushState = function(...args) {
+        origPush.apply(this, args);
+        setTimeout(checkRoute, 0);
+    };
+    window.addEventListener('popstate', checkRoute);
+}
+
+// Run on page load and navigation
+if (location.hostname.includes('adekosiparis.vanucci.com')) {
+    maybeForward();
+    attachLogoutHandler();
+}
+watchNavigation();
+window.addEventListener('load', checkRoute);
 })();
 

@@ -1,6 +1,6 @@
 # Adekosiparis → Vertigram Forwarder
 
-This repository hosts a Violent Monkey userscript that forwards project data from Adekosiparis (and select Parasut pages) to the Vertigram API.
+This repository hosts a Violent Monkey userscript that forwards project data from Adekosiparis and Parasut to the Vertigram API.
 
 ## Installation
 
@@ -13,7 +13,7 @@ This repository hosts a Violent Monkey userscript that forwards project data fro
 
 The script automatically forwards projects to Vertigram whenever you visit the Adekosiparis site or the Parasut invoice creation page. It stores a timestamp in a cookie so forwarding happens at most once every 30 minutes. A small status bar appears at the top of the page while the request is in progress.
 It also expands the order info field on Parasut invoices after the page fully loads so that the extra information field is visible automatically. If the page loads content asynchronously, the script keeps checking until it finds the "SİPARİŞ BİLGİSİ EKLE" button and clicks it.
-The script now logs detailed diagnostics to the browser console when running on Parasut pages so issues can be debugged more easily.
+The script now logs detailed diagnostics to the browser console when running on Parasut pages so issues can be debugged more easily. It listens for navigation events on Parasut so the invoice helpers work even though the site loads pages dynamically as a single-page application.
 
 ## Automatic version bump
 
