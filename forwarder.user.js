@@ -1,229 +1,204 @@
 // ==UserScript==
-// @name         Adekosiparis → Vertigram Forwarder
+// @name         Adekosiparis → Vertigram Forwarder + Parasut helpers
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.0.33
-// @description  Automatically forwards projects to Vertigram API every 30 minutes
+// @version      1.0.35
+// @description  • Forwards Adekosiparis projects to Vertigram every 30 min  • Adds CRM helpers inside uygulama.parasut.com
 // @match        https://adekosiparis.vanucci.com/*
 // @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
 // @downloadURL  https://raw.githubusercontent.com/akina5525/adekoforwarder/main/forwarder.user.js
+// @run-at       document-start
 // @grant        none
 // ==/UserScript==
 
-(function() {
-    'use strict';
+(() => {
+  'use strict';
 
-    // Exit early on the login page
-    if (location.href.toLowerCase().includes('login')) {
-        return;
+  /*───────────────────────────────────────────────────*
+   *  EARLY EXIT ON LOGIN PAGES                        *
+   *───────────────────────────────────────────────────*/
+  if (/login/i.test(location.href)) return;
+
+  const isAdekos  = location.hostname.includes('adekosiparis.vanucci.com');
+  const isParasut = location.hostname.includes('uygulama.parasut.com');
+
+  /*───────────────────────────────────────────────────*
+   *  COOKIE HELPERS                                   *
+   *───────────────────────────────────────────────────*/
+  const getCookie = k => {
+    const m = document.cookie.match(new RegExp('(?:^|; )' + k + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  };
+  const setCookie = (k, v, sec) => (document.cookie = `${k}=${encodeURIComponent(v)}; path=/; max-age=${sec}`);
+  const delCookie = k => (document.cookie = `${k}=; path=/; max-age=0`);
+
+  /*───────────────────────────────────────────────────*
+   *  STATUS BAR (both sites)                          *
+   *───────────────────────────────────────────────────*/
+  function showBar(msg, ms = 3000) {
+    let bar = document.getElementById('forwarder-status-bar');
+    if (!bar) {
+      bar = Object.assign(document.createElement('div'), { id: 'forwarder-status-bar' });
+      Object.assign(bar.style, {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        padding: '10px',
+        fontSize: '14px',
+        background: '#ffb700',
+        color: '#000',
+        textAlign: 'center',
+        zIndex: 10000,
+      });
+      document.body.appendChild(bar);
     }
+    bar.textContent = msg;
+    clearTimeout(bar.hideTimer);
+    bar.hideTimer = setTimeout(() => bar.remove(), ms);
+  }
 
-    const isParasut = location.hostname.includes('uygulama.parasut.com');
-    function logParasut(...args) {
-        if (isParasut) {
-            console.debug('[Parasut]', ...args);
+  /*───────────────────────────────────────────────────*
+   *  ADEKOS → VERTIGRAM FORWARDER                     *
+   *───────────────────────────────────────────────────*/
+  async function forwardProjects() {
+    showBar('Forwarding projects…');
+    try {
+      const list = await fetch(
+        'https://adekosiparis.vanucci.com/Project/GetProjects?page=1&limit=50&customerTitle=&sortBy=crmOrderNo&direction=desc&status=S'
+      ).then(r => (r.ok ? r.json() : Promise.reject(new Error(`Fetch projects failed (${r.status})`))));
+
+      await fetch('https://montaj.sistemart.com/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(list),
+      }).then(r => (r.ok ? r : Promise.reject(new Error(`POST to Vertigram failed (${r.status})`))));
+
+      setCookie('last_forward', Date.now(), 60 * 60 * 24 * 30); // 30 days
+      showBar('✅ Projects forwarded successfully');
+    } catch (e) {
+      console.error(e);
+      showBar('❌ ' + e.message);
+    }
+  }
+
+  function maybeForward() {
+    const last = +getCookie('last_forward') || 0;
+    if (Date.now() - last > 30 * 60 * 1000) forwardProjects(); // ≥30 min
+  }
+
+  function attachLogoutHandler() {
+    let tries = 0;
+    const timer = setInterval(() => {
+      tries++;
+      const el = Array.from(document.querySelectorAll('a, button')).find(e => /çıkış/i.test(e.textContent));
+      if (el) {
+        el.addEventListener('click', () => delCookie('last_forward'));
+        clearInterval(timer);
+      }
+      if (tries > 20) clearInterval(timer); // ~6 s
+    }, 300);
+  }
+
+  /*───────────────────────────────────────────────────*
+   *  PARASUT HELPERS                                  *
+   *───────────────────────────────────────────────────*/
+  if (isParasut) {
+    /*— tiny logger —*/ const log = (...a) => console.debug('[Parasut]', ...a);
+
+    /* Detect SPA route changes (pushState/replaceState/popstate) */
+    function onSpaNavigation(cb) {
+      let last = location.pathname + location.search;
+      const fire = () => {
+        const cur = location.pathname + location.search;
+        if (cur !== last) {
+          last = cur;
+          cb();
         }
+      };
+      ['pushState', 'replaceState'].forEach(fn => {
+        const orig = history[fn];
+        history[fn] = function () {
+          orig.apply(this, arguments);
+          fire();
+        };
+      });
+      addEventListener('popstate', fire, true);
+      fire(); // initial
     }
 
-    // Utility to get a cookie by name
-    function getCookie(name) {
-        const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-        return match ? decodeURIComponent(match[1]) : null;
+    /* Promise-style DOM waiter */
+    function waitFor(testFn, { poll = 100, timeout = 5000 } = {}) {
+      return new Promise((res, rej) => {
+        const t0 = performance.now();
+        (function look() {
+          const el = testFn();
+          if (el) return res(el);
+          if (performance.now() - t0 > timeout) return rej('timeout');
+          setTimeout(look, poll);
+        })();
+      });
     }
 
-    // Utility to set a cookie with path=/
-    function setCookie(name, value, maxAgeSeconds) {
-        document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAgeSeconds}`;
+    /* Auto-expand “Sipariş Bilgisi Ekle” */
+    async function clickOrderInfo() {
+      try {
+        const btn = await waitFor(() =>
+          Array.from(document.querySelectorAll('button, a, [role="button"]')).find(el =>
+            /sipariş bilgisi ekle/i.test(el.textContent)
+          )
+        );
+        btn.click();
+      } catch (_) {
+        log('Order-info button not found (timeout)');
+      }
     }
 
-    // Deletes a cookie
-    function deleteCookie(name) {
-        document.cookie = `${name}=; path=/; max-age=0`;
-    }
+    /* CRM Order-No validator */
+    async function installOrderNoValidator() {
+      try {
+        const [saveBtn, input] = await Promise.all([
+          waitFor(() => document.querySelector('[data-tid="save"]')),
+          waitFor(() => {
+            const span = Array.from(document.querySelectorAll('span.prepend')).find(sp => sp.textContent.trim() === 'NO');
+            return span && span.parentElement.querySelector('input');
+          }),
+        ]);
 
-    // Shows a small top bar with the given message
-    function showBar(msg) {
-        let bar = document.getElementById('forwarder-status-bar');
-        if (!bar) {
-            bar = document.createElement('div');
-            bar.id = 'forwarder-status-bar';
-            Object.assign(bar.style, {
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                padding: '10px',
-                backgroundColor: '#ffb700',
-                color: '#000',
-                textAlign: 'center',
-                zIndex: 10000,
-                fontSize: '14px'
-            });
-            document.body.appendChild(bar);
-        }
-        bar.textContent = msg;
-    }
-
-    // Hide the bar after 3 seconds
-    function hideBar() {
-        const bar = document.getElementById('forwarder-status-bar');
-        if (bar) {
-            setTimeout(() => bar.remove(), 3000);
-        }
-    }
-
-    async function forward() {
-        showBar('Forwarding projects…');
-        try {
-            const res1 = await fetch('https://adekosiparis.vanucci.com/Project/GetProjects?page=1&limit=50&customerTitle=&sortBy=crmOrderNo&direction=desc&status=S');
-            if (!res1.ok) throw new Error(`Fetch projects failed: ${res1.status}`);
-            const data = await res1.json();
-            const res2 = await fetch('https://montaj.sistemart.com/api/projects', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            if (!res2.ok) throw new Error(`POST failed: ${res2.status}`);
-            showBar('✅ Projects forwarded successfully');
-            setCookie('last_forward', Date.now().toString(), 60 * 60 * 24 * 30);
-        } catch (err) {
-            console.error(err);
-            showBar('❌ Error: ' + err.message);
-        } finally {
-            hideBar();
-        }
-    }
-
-    function maybeForward() {
-        const last = parseInt(getCookie('last_forward') || '0', 10);
-        if (Date.now() - last > 30 * 60 * 1000) {
-            forward();
-        }
-    }
-
-    function attachLogoutHandler() {
-        const logoutBtn = Array.from(document.querySelectorAll('a, button'))
-            .find(el => el.textContent.trim() === 'Çıkış Yap');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => deleteCookie('last_forward'));
-        }
-    }
-
-    // Automatically expand the order-info section on Parasut invoice pages
-    function findOrderInfoButton(doc) {
-        logParasut('Searching for order info button');
-        const addButton = Array.from(doc.querySelectorAll('button, a, [role="button"]'))
-            .find(el => el.textContent.trim() === 'SİPARİŞ BİLGİSİ EKLE');
-        if (addButton) {
-            logParasut('Found localized order info button');
-            return addButton;
-        }
-
-        const orderDiv = doc.querySelector("div[class*='order-info']");
-        if (orderDiv) {
-            logParasut('Found order info container');
-            const clickable = orderDiv.querySelector('a, button, [role="button"], input[type="button"], input[type="submit"]');
-            return clickable || orderDiv;
-        }
-
-        for (const frame of doc.querySelectorAll('iframe')) {
-            try {
-                logParasut('Searching inside iframe');
-                const found = findOrderInfoButton(frame.contentDocument);
-                if (found) return found;
-            } catch (e) {
-                logParasut('Skipping cross-origin iframe');
+        input.style.background = '#ffe5e5';
+        saveBtn.addEventListener(
+          'click',
+          evt => {
+            if (!input.value.trim()) {
+              evt.stopImmediatePropagation();
+              evt.preventDefault();
+              alert('CRM Order No has to be entered');
             }
-        }
-        return null;
+          },
+          true
+        );
+      } catch (_) {
+        log('Order-No validator setup timed out');
+      }
     }
 
-    function clickParasutOrderInfo() {
-        if (!location.hostname.includes('uygulama.parasut.com')) {
-            return;
-        }
-        logParasut('Waiting for order info button');
-        let attempts = 0;
-        const interval = setInterval(() => {
-            attempts++;
-            logParasut(`Attempt ${attempts} to find order info button`);
-            const button = findOrderInfoButton(document);
-            if (button) {
-                logParasut('Order info button found, clicking');
-                button.click();
-                clearInterval(interval);
-            }
-        }, 300);
-    }
-
-    // Validate the CRM Order No field before saving invoices on Parasut
-    function addOrderNoValidator() {
-        if (!location.hostname.includes('uygulama.parasut.com')) {
-            return;
-        }
-
-        logParasut('Setting up order number validator');
-        let attempts = 0;
-        const maxAttempts = 20;
-        const interval = setInterval(() => {
-            attempts++;
-            logParasut(`Validator check attempt ${attempts}`);
-            const saveBtn = document.querySelector('[data-tid="save"]');
-            const spanNo = Array.from(document.querySelectorAll('span.prepend'))
-                .find(sp => sp.textContent.trim() === 'NO');
-            const input = spanNo && spanNo.parentElement.querySelector('input');
-
-            if (input) {
-                input.style.backgroundColor = 'red';
-            }
-
-            if (saveBtn && input) {
-                logParasut('Validator attached');
-                saveBtn.addEventListener('click', evt => {
-                    logParasut(`Save clicked with order no: "${input.value.trim()}"`);
-                    if (!input.value.trim()) {
-                        logParasut('Order no missing, preventing save');
-                        evt.stopImmediatePropagation();
-                        evt.preventDefault();
-                        alert('CRM Order No has to be entered');
-                    }
-                }, true);
-                clearInterval(interval);
-            } else if (attempts >= maxAttempts) {
-                logParasut('Giving up on attaching validator');
-                clearInterval(interval);
-            }
-        }, 300);
-    }
-
-    function isParasutInvoicePage() {
-        return location.hostname.includes('uygulama.parasut.com') &&
-               location.pathname.includes('/satislar/yeni/fatura');
-    }
-
+    /* Run Parasut enhancements on invoice pages */
     function runParasutEnhancements() {
-        if (isParasutInvoicePage()) {
-            clickParasutOrderInfo();
-            addOrderNoValidator();
-        }
+      if (/\/satislar\/(?:yeni|\d+)\/fatura/.test(location.pathname)) {
+        clickOrderInfo();
+        installOrderNoValidator();
+      }
     }
 
-    // Run on page load
-    if (location.hostname.includes('adekosiparis.vanucci.com')) {
-        maybeForward();
-        attachLogoutHandler();
-    }
+    onSpaNavigation(runParasutEnhancements);
+  }
 
-    if (isParasut) {
-        let lastHref = location.href;
-        runParasutEnhancements();
-        setInterval(() => {
-            if (location.href !== lastHref) {
-                lastHref = location.href;
-                logParasut('URL changed to', lastHref);
-                runParasutEnhancements();
-            }
-        }, 500);
-    }
+  /*───────────────────────────────────────────────────*
+   *  INITIALISATION PER SITE                          *
+   *───────────────────────────────────────────────────*/
+  if (isAdekos) {
+    maybeForward();                           // immediate
+    setInterval(maybeForward, 5 * 60 * 1000); // check every 5 min
+    attachLogoutHandler();
+  }
 })();
-
