@@ -82,7 +82,7 @@
 
   function maybeForward() {
     const last = +getCookie('last_forward') || 0;
-    if (Date.now() - last > 30 * 60 * 1000) forwardProjects(); // ≥30 min
+    if (Date.now() - last > 10 * 60 * 1000) forwardProjects(); // ≥10 min
   }
 
   function attachLogoutHandler() {
@@ -103,7 +103,7 @@
    *───────────────────────────────────────────────────*/
   if (isAdekos) {
     maybeForward();                           // immediate
-    setInterval(maybeForward, 5 * 60 * 1000); // check every 5 min
+    //setInterval(maybeForward, 5 * 60 * 1000); // check every 5 min
     attachLogoutHandler();
   }
 })();
