@@ -173,6 +173,10 @@
                 .find(sp => sp.textContent.trim() === 'NO');
             const input = spanNo && spanNo.parentElement.querySelector('input');
 
+            if (input) {
+                input.style.backgroundColor = 'red';
+            }
+
             if (saveBtn && input) {
                 logParasut('Validator attached');
                 saveBtn.addEventListener('click', evt => {
