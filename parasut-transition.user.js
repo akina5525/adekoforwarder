@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parasut Page Load Alert
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.5.0
+// @version      1.6.0
 // @description  Alerts whenever the Parasut SPA finishes loading a new page
 // @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/parasut-transition.user.js
@@ -34,18 +34,41 @@
       }
       if (input) {
         input.click();
-        input.style.backgroundColor = 'red';
+
+        const updateBg = () => {
+          if (/MUTFAK/i.test(input.value)) {
+            const span = Array.from(document.querySelectorAll('span.prepend')).find(
+              s => s.textContent.trim() === 'NO'
+            );
+            const orderInput = span?.parentElement.querySelector('input[type="text"]');
+            if (orderInput && !orderInput.dataset.forwarderAttached) {
+              orderInput.dataset.forwarderAttached = 'true';
+              orderInput.addEventListener('input', updateBg);
+            }
+            if (orderInput && !orderInput.value.trim()) {
+              input.style.backgroundColor = 'red';
+            } else {
+              input.style.backgroundColor = '';
+            }
+          } else {
+            input.style.backgroundColor = '';
+          }
+        };
 
         if (!input.dataset.forwarderAttached) {
           input.dataset.forwarderAttached = 'true';
           input.addEventListener('input', () => {
             if (/MUTFAK/i.test(input.value)) {
-              const btn = Array.from(document.querySelectorAll('button'))
-                .find(b => b.textContent.trim().toUpperCase() === 'SİPARİŞ BİLGİSİ EKLE');
+              const btn = Array.from(document.querySelectorAll('button')).find(
+                b =>
+                  b.textContent.trim().toUpperCase() === 'SİPARİŞ BİLGİSİ EKLE'
+              );
               if (btn) btn.click();
             }
+            updateBg();
           });
         }
+        updateBg();
 
         const save = document.querySelector('button[data-tid="save"]');
         if (save && !save.dataset.forwarderAttached) {
