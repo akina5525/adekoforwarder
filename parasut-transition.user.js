@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parasut Page Load Alert
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.11.0
+// @version      1.12.0
 // @description  Alerts whenever the Parasut SPA finishes loading a new page
 // @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/parasut-transition.user.js
@@ -44,6 +44,7 @@
           if (orderInput && !orderInput.dataset.forwarderAttached) {
             orderInput.dataset.forwarderAttached = 'true';
             orderInput.addEventListener('input', updateBg);
+            orderInput.addEventListener('change', updateBg);
           }
 
           if (/MUTFAK|BANYO/i.test(input.value) && orderInput && !orderInput.value.trim()) {
@@ -55,7 +56,7 @@
 
         if (!input.dataset.forwarderAttached) {
           input.dataset.forwarderAttached = 'true';
-          input.addEventListener('input', () => {
+          const onTitleChange = () => {
             if (/MUTFAK|BANYO/i.test(input.value)) {
               const span = Array.from(document.querySelectorAll('span.prepend')).find(
                 s => s.textContent.trim() === 'NO'
@@ -70,7 +71,9 @@
               }
             }
             updateBg();
-          });
+          };
+          input.addEventListener('input', onTitleChange);
+          input.addEventListener('change', onTitleChange);
         }
         updateBg();
 

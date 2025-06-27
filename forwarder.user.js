@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Adekosiparis → Vertigram Forwarder
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.6.0
+// @version      1.7.0
 // @description  Forwards Adekosiparis projects to Vertigram every 30 min; enhances Parasut invoices
 // @match        https://adekosiparis.vanucci.com/*
 // @match        https://uygulama.parasut.com/*
@@ -136,6 +136,7 @@
             if (orderInput && !orderInput.dataset.forwarderAttached) {
               orderInput.dataset.forwarderAttached = 'true';
               orderInput.addEventListener('input', updateBg);
+              orderInput.addEventListener('change', updateBg);
             }
 
             if (/MUTFAK|BANYO/i.test(input.value) && orderInput && !orderInput.value.trim()) {
@@ -147,7 +148,7 @@
 
           if (!input.dataset.forwarderAttached) {
             input.dataset.forwarderAttached = 'true';
-            input.addEventListener('input', () => {
+            const onTitleChange = () => {
               if (/MUTFAK|BANYO/i.test(input.value)) {
                 const span = Array.from(document.querySelectorAll('span.prepend')).find(
                   s => s.textContent.trim() === 'NO'
@@ -161,7 +162,9 @@
                 }
               }
               updateBg();
-            });
+            };
+            input.addEventListener('input', onTitleChange);
+            input.addEventListener('change', onTitleChange);
           }
           updateBg();
 
