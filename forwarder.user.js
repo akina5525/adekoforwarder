@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Adekosiparis → Vertigram Forwarder
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.3.0
+// @version      1.4.0
 // @description  Forwards Adekosiparis projects to Vertigram every 30 min; enhances Parasut invoices
 // @match        https://adekosiparis.vanucci.com/*
 // @match        https://uygulama.parasut.com/*
@@ -138,7 +138,7 @@
               orderInput.addEventListener('input', updateBg);
             }
 
-            if (/MUTFAK/i.test(input.value) && orderInput && !orderInput.value.trim()) {
+            if (/MUTFAK|BANYO/i.test(input.value) && orderInput && !orderInput.value.trim()) {
               orderInput.style.backgroundColor = 'red';
             } else if (orderInput) {
               orderInput.style.backgroundColor = '';
@@ -148,7 +148,7 @@
           if (!input.dataset.forwarderAttached) {
             input.dataset.forwarderAttached = 'true';
             input.addEventListener('input', () => {
-              if (/MUTFAK/i.test(input.value)) {
+              if (/MUTFAK|BANYO/i.test(input.value)) {
                 const btn = Array.from(document.querySelectorAll('button')).find(
                   b => b.textContent.trim().toUpperCase() === 'SİPARİŞ BİLGİSİ EKLE'
                 );
@@ -165,7 +165,7 @@
             save.addEventListener(
               'click',
               ev => {
-                if (/MUTFAK/i.test(input.value)) {
+                if (/MUTFAK|BANYO/i.test(input.value)) {
                   const span = Array.from(document.querySelectorAll('span.prepend')).find(
                     s => s.textContent.trim() === 'NO'
                   );
