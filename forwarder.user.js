@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Adekosiparis → Vertigram Forwarder
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.2.0
+// @version      1.3.0
 // @description  Forwards Adekosiparis projects to Vertigram every 30 min; enhances Parasut invoices
 // @match        https://adekosiparis.vanucci.com/*
 // @match        https://uygulama.parasut.com/*
@@ -112,8 +112,9 @@
   function initParasut() {
     function handlePage() {
       if (
-        document.title.trim() ===
-        'Paraşüt ▸ Satış Faturaları ▸ Satış Faturası ▸ Yeni'
+        /Paraşüt ▸ Satış Faturaları ▸ Satış Faturası ▸ (Yeni|Düzenle)/.test(
+          document.title.trim()
+        )
       ) {
         const section = document.querySelector('fieldset[data-tns="invoice-header"]');
         if (!section) return;
