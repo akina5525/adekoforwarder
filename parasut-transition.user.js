@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parasut Page Load Alert
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.13.0
+// @version      1.14.0
 // @description  Alerts whenever the Parasut SPA finishes loading a new page
 // @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/parasut-transition.user.js
@@ -20,7 +20,7 @@
 
   function handlePage() {
     if (
-      /Paraşüt ▸ Satış Faturaları ▸ Satış Faturası ▸ (Yeni|Düzenle)/.test(
+      /Paraşüt ▸ Satış Faturaları ▸ [^▸]+ ▸ (Yeni|Düzenle)/.test(
         document.title.trim()
       )
     ) {
