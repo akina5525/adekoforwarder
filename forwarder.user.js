@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Adekosiparis → Vertigram Forwarder
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.5.0
+// @version      1.6.0
 // @description  Forwards Adekosiparis projects to Vertigram every 30 min; enhances Parasut invoices
 // @match        https://adekosiparis.vanucci.com/*
 // @match        https://uygulama.parasut.com/*
@@ -119,7 +119,7 @@
         const section = document.querySelector('fieldset[data-tns="invoice-header"]');
         if (!section) return;
         const label = Array.from(section.querySelectorAll('label')).find(el =>
-          el.textContent.trim().toUpperCase() === 'FATURA İSMİ'
+          el.textContent.trim().toLocaleUpperCase('tr') === 'FATURA İSMİ'
         );
         let input = label?.parentElement.querySelector('input[type="text"]');
         if (!input) {
@@ -155,7 +155,7 @@
                 const orderInput = span?.parentElement.querySelector('input[type="text"]');
                 if (!orderInput || orderInput.offsetParent === null) {
                   const btn = Array.from(document.querySelectorAll('button')).find(
-                    b => b.textContent.trim().toUpperCase() === 'SİPARİŞ BİLGİSİ EKLE'
+                    b => b.textContent.trim().toLocaleUpperCase('tr') === 'SİPARİŞ BİLGİSİ EKLE'
                   );
                   if (btn) btn.click();
                 }
