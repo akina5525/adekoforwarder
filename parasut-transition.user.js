@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parasut Page Load Alert
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.9.0
+// @version      1.10.0
 // @description  Alerts whenever the Parasut SPA finishes loading a new page
 // @match        https://uygulama.parasut.com/*
 // @updateURL    https://raw.githubusercontent.com/akina5525/adekoforwarder/main/parasut-transition.user.js
@@ -57,11 +57,17 @@
           input.dataset.forwarderAttached = 'true';
           input.addEventListener('input', () => {
             if (/MUTFAK|BANYO/i.test(input.value)) {
-              const btn = Array.from(document.querySelectorAll('button')).find(
-                b =>
-                  b.textContent.trim().toUpperCase() === 'SİPARİŞ BİLGİSİ EKLE'
+              const span = Array.from(document.querySelectorAll('span.prepend')).find(
+                s => s.textContent.trim() === 'NO'
               );
-              if (btn) btn.click();
+              const orderInput = span?.parentElement.querySelector('input[type="text"]');
+              if (!orderInput || orderInput.offsetParent === null) {
+                const btn = Array.from(document.querySelectorAll('button')).find(
+                  b =>
+                    b.textContent.trim().toUpperCase() === 'SİPARİŞ BİLGİSİ EKLE'
+                );
+                if (btn) btn.click();
+              }
             }
             updateBg();
           });
