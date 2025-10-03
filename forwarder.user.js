@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Adekosiparis → Vertigram Forwarder
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.9.0
+// @version      1.10.0
 // @description  Forwards Adekosiparis projects to Vertigram every 30 min; enhances Parasut invoices
 // @match        https://adekosiparis.vanucci.com/*
 // @match        https://uygulama.parasut.com/*
@@ -126,7 +126,6 @@
           input = section.querySelector('input[type="text"]');
         }
         if (input) {
-          input.click();
 
           const updateBg = () => {
             const span = Array.from(document.querySelectorAll('span.prepend')).find(
