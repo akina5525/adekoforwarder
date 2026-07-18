@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Adekosiparis → Vertigram Forwarder
 // @namespace    https://github.com/akina5525/adekoforwarder
-// @version      1.10.0
+// @version      1.12.0
 // @description  Forwards Adekosiparis projects to Vertigram every 30 min; enhances Parasut invoices
 // @match        https://adekosiparis.vanucci.com/*
 // @match        https://uygulama.parasut.com/*
@@ -20,9 +20,11 @@
   if (/login/i.test(location.href)) return;
 
   const isAdekos = location.hostname.includes('adekosiparis.vanucci.com');
-  const isParasut = location.hostname.includes('uygulama.parasut.com');
 
-  if (isAdekos) {
+
+  // Adekosiparis → Vertigram forwarding is temporarily disabled.
+  // Keep the implementation below so it can be re-enabled when needed.
+  if (false && isAdekos) {
     /*───────────────────────────────────────────────────*
      *  COOKIE HELPERS                                   *
      *───────────────────────────────────────────────────*/
@@ -228,7 +230,5 @@
   /*───────────────────────────────────────────────────*
    *  INITIALISATION PER SITE                          *
    *───────────────────────────────────────────────────*/
-  if (isParasut) {
-    initParasut();
-  }
+  initParasut();
 })();
